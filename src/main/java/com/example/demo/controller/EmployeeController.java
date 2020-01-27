@@ -4,6 +4,7 @@ import com.example.demo.dto.EmployeeDTO;
 import com.example.demo.entity.Employee;
 import com.example.demo.services.EmployeeService;
 import com.example.demo.utils.NotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping(path = "/employees")
 public class EmployeeController {
@@ -29,7 +31,7 @@ public class EmployeeController {
         return employeeService.findAll();
     }
 
-    @PostMapping("")
+    @PostMapping("/")
     public EmployeeDTO addEmployee(@RequestBody EmployeeDTO employeeDTO) {
         Employee employee = this.modelMapper.map(employeeDTO, Employee.class);
         this.employeeService.save(employee);
@@ -43,12 +45,14 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    public Employee getEmployee(@PathVariable("id") long id) {
-        return this.employeeService.findById(id);
+    public EmployeeDTO getEmployee(@PathVariable("id") long id) {
+        Employee employee = this.employeeService.findById(id);
+        return modelMapper.map(employee, EmployeeDTO.class);
     }
 
     @ExceptionHandler(value = NotFoundException.class)
     public ResponseEntity<Object> notFoundExceptionHandler(NotFoundException ex){
-       return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    log.info(ex.getMessage());
+       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }
